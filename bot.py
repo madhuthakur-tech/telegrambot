@@ -13,9 +13,19 @@ from telegram.ext import (
 TOKEN = os.getenv("BOT_TOKEN")
 
 # =========================
-# VIDEO FILE ID (apna daal)
+# VIDEO FILE ID
 # =========================
 VIDEO_FILE_ID = "BAACAgUAAxkBAAMGaYsBMV20nnbb4rsaPbLn1MRIHCsAApcrAALyjiBVj1XTQUYPxK86BA"
+
+# =========================
+# ALLOWED CHANNEL IDs (4 groups)
+# =========================
+ALLOWED_CHANNEL_IDS = [
+    -1003708594569,
+    -1003797237946,
+    -1003585811000,
+    -1003737422554
+]
 
 # =========================
 # START COMMAND
@@ -33,7 +43,18 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def join_request_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.chat_join_request.from_user
     user_id = user.id
-    channel_name = update.chat_join_request.chat.title
+
+    chat = update.chat_join_request.chat
+    channel_id = chat.id
+    channel_name = chat.title
+
+    # check allowed channel
+    if channel_id not in ALLOWED_CHANNEL_IDS:
+        await context.bot.send_message(
+            chat_id=user_id,
+            text="❌ Ye channel allowed nahi hai."
+        )
+        return
 
     try:
         await context.bot.send_video(
@@ -41,6 +62,8 @@ async def join_request_handler(update: Update, context: ContextTypes.DEFAULT_TYP
             video=VIDEO_FILE_ID,
             caption=f"✅ Request received in: {channel_name}\n\n🎥 Ye lo tumhari video 🔥"
         )
+        print(f"Video sent to {user_id} for request in {channel_name}")
+
     except Exception as e:
         print("Error sending video:", e)
 
@@ -58,6 +81,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
