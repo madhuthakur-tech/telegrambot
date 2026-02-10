@@ -5,10 +5,10 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Cont
 TOKEN = os.getenv("BOT_TOKEN")
 
 CHANNELS = [
-    "https://t.me/yourchannel1",
-    "https://t.me/yourchannel2",
-    "https://t.me/yourchannel3",
-    "https://t.me/yourchannel4",
+    "https://t.me/+xiDyyJTIWccxYzll",
+    "https://t.me/+K3jud7ThW4Q4NDQ1",
+    "https://t.me/+-s8gGlM-BcY1NDll",
+    "https://t.me/+_YmoMrDZ0oliMTll",
 ]
 
 VIDEO_LINK = "https://t.me/yourchannel1/10"  # yaha apni video post link
