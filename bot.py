@@ -4,7 +4,6 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Cont
 
 TOKEN = os.getenv("BOT_TOKEN")
 
-# ✅ PRIVATE CHANNEL IDS
 CHANNEL_IDS = [
     -1003708594569,
     -1003797237946,
@@ -12,7 +11,6 @@ CHANNEL_IDS = [
     -1003737422554,
 ]
 
-# ✅ CHANNEL LINKS (join button ke liye)
 CHANNEL_LINKS = [
     "https://t.me/+_YmoMrDZ0oliMTll",
     "https://t.me/+-s8gGlM-BcY1NDll",
@@ -28,37 +26,36 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [InlineKeyboardButton("💖 Haan mujhe video chahiye", callback_data="want_video")]
     ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
 
     await update.message.reply_photo(
         photo=PHOTO_FILE_ID,
         caption="Kya tumhe meri exclusive video chahiye? 😘",
-        reply_markup=reply_markup
+        reply_markup=InlineKeyboardMarkup(keyboard)
     )
 
 
 async def want_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()
+    await query.answer("Join karo phir verify dabao ✅")
 
     buttons = []
-
     for link in CHANNEL_LINKS:
         buttons.append([InlineKeyboardButton("🔐 Join Channel", url=link)])
 
     buttons.append([InlineKeyboardButton("✅ Verify", callback_data="verify")])
 
     await query.message.reply_text(
-        "Pehle sabhi 4 channels me join request bhejo 👇\n\nJoin karke Verify dabao ✅",
+        "Pehle 4 channels me join request bhejo 👇\n\nPhir Verify dabao ✅",
         reply_markup=InlineKeyboardMarkup(buttons)
     )
 
 
 async def verify(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()
-
     user_id = query.from_user.id
+
+    await query.answer("Checking... ⏳")
+
     not_joined = []
 
     for channel_id in CHANNEL_IDS:
@@ -68,12 +65,12 @@ async def verify(update: Update, context: ContextTypes.DEFAULT_TYPE):
             if member.status in ["left", "kicked"]:
                 not_joined.append(channel_id)
 
-        except Exception:
+        except Exception as e:
             not_joined.append(channel_id)
 
     if not_joined:
         await query.message.reply_text(
-            "❌ Tumne abhi tak sab channels join nahi kiye.\n\nPehle join karo phir Verify dabao ✅"
+            "❌ Tumne abhi tak sab channels join nahi kiye.\n\n⚠️ Pehle join karo phir Verify dabao."
         )
         return
 
@@ -90,11 +87,13 @@ def main():
     app.add_handler(CallbackQueryHandler(want_video, pattern="want_video"))
     app.add_handler(CallbackQueryHandler(verify, pattern="verify"))
 
+    print("Bot is running...")
     app.run_polling()
 
 
 if __name__ == "__main__":
     main()
+
 
 
 
