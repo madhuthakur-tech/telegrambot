@@ -1,3 +1,4 @@
+import os
 from telegram import (
     Update,
     InlineKeyboardButton,
@@ -11,7 +12,8 @@ from telegram.ext import (
     ContextTypes,
 )
 
-TOKEN = "8530160857:AAE-hEX-nKVNGR4HypKL_Lm_7jpZRUdGeUU"
+# TOKEN Railway Variable se aayega
+TOKEN = os.getenv("BOT_TOKEN")
 
 # 🔒 4 PRIVATE CHANNEL IDs
 CHANNELS = [
@@ -29,11 +31,11 @@ VIDEO_FILE_ID = "BAACAgUAAxkBAAMGaYsBMV20nnbb4rsaPbLn1MRIHCsAApcrAALyjiBVj1XTQUY
 
 join_requests = {}
 
+
 # =============================
 # START COMMAND
 # =============================
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
     keyboard = [
         [InlineKeyboardButton("💖 Haan mujhe video chahiye", callback_data="want_video")]
     ]
@@ -51,7 +53,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # WHEN USER CLICKS YES
 # =============================
 async def show_channels(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
     query = update.callback_query
     await query.answer()
 
@@ -83,7 +84,6 @@ async def show_channels(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # SAVE JOIN REQUEST DATA
 # =============================
 async def handle_join_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
     user_id = update.chat_join_request.from_user.id
     chat_id = update.chat_join_request.chat.id
 
@@ -97,7 +97,6 @@ async def handle_join_request(update: Update, context: ContextTypes.DEFAULT_TYPE
 # CHECK REQUEST BUTTON
 # =============================
 async def check_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
-
     query = update.callback_query
     await query.answer()
 
@@ -120,11 +119,23 @@ async def check_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
 # =============================
 # MAIN APP
 # =============================
-app = ApplicationBuilder().token(TOKEN).build()
+def main():
+    if not TOKEN:
+        print("ERROR: BOT_TOKEN variable not found!")
+        return
 
-app.add_handler(CommandHandler("start", start))
-app.add_handler(ChatJoinRequestHandler(handle_join_request))
-app.add_handler(CallbackQueryHandler(show_channels, pattern="want_video"))
-app.add_handler(CallbackQueryHandler(check_request, pattern="check"))
+    app = ApplicationBuilder().token(TOKEN).build()
 
-app.run_polling()
+    app.add_handler(CommandHandler("start", start))
+    app.add_handler(ChatJoinRequestHandler(handle_join_request))
+    app.add_handler(CallbackQueryHandler(show_channels, pattern="want_video"))
+    app.add_handler(CallbackQueryHandler(check_request, pattern="check"))
+
+    print("Bot is running...")
+    app.run_polling()
+
+
+if __name__ == "__main__":
+    main()
+
+    
