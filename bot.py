@@ -4,58 +4,98 @@ from telegram.ext import Application, CommandHandler, CallbackQueryHandler, Cont
 
 TOKEN = os.getenv("BOT_TOKEN")
 
-CHANNELS = [
-    "https://t.me/+xiDyyJTIWccxYzll",
-    "https://t.me/+K3jud7ThW4Q4NDQ1",
-    "https://t.me/+-s8gGlM-BcY1NDll",
-    "https://t.me/+_YmoMrDZ0oliMTll",
+# ✅ PRIVATE CHANNEL IDS
+CHANNEL_IDS = [
+    -1003708594569,
+    -1003797237946,
+    -1003585811000,
+    -1003737422554,
 ]
 
-VIDEO_LINK = "https://t.me/yourchannel1/10"  # yaha apni video post link
+# ✅ CHANNEL LINKS (join button ke liye)
+CHANNEL_LINKS = [
+    "https://t.me/+_YmoMrDZ0oliMTll",
+    "https://t.me/+-s8gGlM-BcY1NDll",
+    "https://t.me/+az-lgmrUAnU1MzQ1",
+    "https://t.me/+Ltw6NlDYtaQ5OWE1",
+]
+
+PHOTO_FILE_ID = "AgACAgUAAxkBAAMDaYr-66ojnCvF701cJ1NknwABL6uaAAIgD2sbaa5ZVBdxyTFJYbB0AQADAgADeQADOgQ"
+VIDEO_FILE_ID = "BAACAgUAAxkBAAMGaYsBMV20nnbb4rsaPbLn1MRIHCsAApcrAALyjiBVj1XTQUYPxK86BA"
+
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = [[InlineKeyboardButton("💖 Haan mujhe video chahiye", callback_data="want_video")]]
+    keyboard = [
+        [InlineKeyboardButton("💖 Haan mujhe video chahiye", callback_data="want_video")]
+    ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    await update.message.reply_text(
-        "Hello! Bot running successfully ✅\n\nKya tumhe meri exclusive video chahiye? 😘",
+    await update.message.reply_photo(
+        photo=PHOTO_FILE_ID,
+        caption="Kya tumhe meri exclusive video chahiye? 😘",
         reply_markup=reply_markup
     )
+
 
 async def want_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
     buttons = []
-    for link in CHANNELS:
+
+    for link in CHANNEL_LINKS:
         buttons.append([InlineKeyboardButton("🔐 Join Channel", url=link)])
 
-    buttons.append([InlineKeyboardButton("✅ Done (Video Do)", callback_data="send_video")])
+    buttons.append([InlineKeyboardButton("✅ Verify", callback_data="verify")])
 
     await query.message.reply_text(
-        "Pehle in sab channels ko join karo 👇",
+        "Pehle sabhi 4 channels me join request bhejo 👇\n\nJoin karke Verify dabao ✅",
         reply_markup=InlineKeyboardMarkup(buttons)
     )
 
-async def send_video(update: Update, context: ContextTypes.DEFAULT_TYPE):
+
+async def verify(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
-    await query.message.reply_text(
-        f"🎥 Ye lo tumhari video:\n{VIDEO_LINK}"
+    user_id = query.from_user.id
+    not_joined = []
+
+    for channel_id in CHANNEL_IDS:
+        try:
+            member = await context.bot.get_chat_member(channel_id, user_id)
+
+            if member.status in ["left", "kicked"]:
+                not_joined.append(channel_id)
+
+        except Exception:
+            not_joined.append(channel_id)
+
+    if not_joined:
+        await query.message.reply_text(
+            "❌ Tumne abhi tak sab channels join nahi kiye.\n\nPehle join karo phir Verify dabao ✅"
+        )
+        return
+
+    await query.message.reply_video(
+        video=VIDEO_FILE_ID,
+        caption="🎉 Verified! Ye lo tumhari video 😘"
     )
+
 
 def main():
     app = Application.builder().token(TOKEN).build()
 
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CallbackQueryHandler(want_video, pattern="want_video"))
-    app.add_handler(CallbackQueryHandler(send_video, pattern="send_video"))
+    app.add_handler(CallbackQueryHandler(verify, pattern="verify"))
 
     app.run_polling()
 
+
 if __name__ == "__main__":
     main()
+
 
 
 
