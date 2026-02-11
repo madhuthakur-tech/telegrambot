@@ -1,7 +1,7 @@
 from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
 
-TOKEN = "APNA_REAL_BOT_TOKEN_YAHAN_DALO"
+TOKEN = "8274138192:AAFEE4CuiznHk30Ni0fxnemNbhIulSr7Gq0"
 
 async def get_file_id(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.message.video:
